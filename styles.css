@@ -1,0 +1,72 @@
+/* Hacer el buzón movible */
+.buzon {
+    position: fixed;
+    left: 120px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 350px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    z-index: 1001;
+    display: none;
+    overflow: hidden;
+    cursor: move;
+}
+
+.buzon.activo {
+    display: block;
+}
+
+.buzon-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+    user-select: none;
+}
+
+/* Botón movible */
+.boton-flotante {
+    position: fixed;
+    left: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    cursor: move;
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+    z-index: 1000;
+    font-size: 32px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+.boton-flotante:hover {
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.6);
+}
+
+/* Estados de arrastre */
+.boton-flotante.arrastrando {
+    cursor: grabbing;
+    transform: translateY(-50%) scale(1.05);
+}
+
+.buzon.arrastrando {
+    cursor: grabbing;
+}
+
+.buzon-header.arrastrando {
+    cursor: grabbing;
+}

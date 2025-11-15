@@ -678,6 +678,1018 @@
         });
     </script>
 </body>
-
 </html>
 
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buzon de Comentarios</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(132, 215, 254, 0.928);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .floating-comment-btn {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            cursor: grab;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+        
+        .floating-comment-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .floating-comment-btn:active {
+            cursor: grabbing;
+        }
+        
+        .floating-comment-btn::after {
+            content: "Comentarios";
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .floating-comment-btn:hover::after {
+            opacity: 1;
+        }
+        
+        .comments-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 500px;
+            height: 80vh;
+            max-height: 700px;
+            background: #1e1e2e;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            overflow: hidden;
+            flex-direction: column;
+            cursor: grab;
+        }
+        
+        .comments-modal:active {
+            cursor: grabbing;
+        }
+        
+        .comments-header {
+            background: #2d2d44;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #3a3a52;
+            cursor: move;
+        }
+        
+        .comments-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .comments-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        .comment {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #3a3a52;
+        }
+        
+        .comment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .comment-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+            background: #4a4a6a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            border: 2px solid transparent;
+            transition: border 0.3s;
+            overflow: hidden;
+        }
+        
+        .comment-avatar.has-image {
+            background: none;
+        }
+        
+        .comment-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .comment-author {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .comment-date {
+            font-size: 0.75rem;
+            color: #a0a0c0;
+            margin-left: 10px;
+        }
+        
+        .comment-content {
+            margin-left: 46px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .comment-actions {
+            display: flex;
+            margin-left: 46px;
+            margin-top: 8px;
+        }
+        
+        .comment-action-btn {
+            background: none;
+            border: none;
+            color: #a0a0c0;
+            font-size: 0.8rem;
+            margin-right: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s;
+        }
+        
+        .comment-action-btn:hover {
+            color: white;
+        }
+        
+        .reply-form {
+            margin-top: 10px;
+            margin-left: 46px;
+            display: none;
+        }
+        
+        .reply-input {
+            width: 100%;
+            background: #2d2d44;
+            border: 1px solid #3a3a52;
+            border-radius: 20px;
+            padding: 8px 15px;
+            color: white;
+            font-size: 0.9rem;
+            resize: none;
+            height: 40px;
+        }
+        
+        .reply-input:focus {
+            outline: none;
+            border-color: #6a11cb;
+        }
+        
+        .reply-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
+        
+        .reply-btn, .cancel-reply-btn {
+            padding: 5px 15px;
+            border-radius: 15px;
+            border: none;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .reply-btn {
+            background: #6a11cb;
+            color: white;
+        }
+        
+        .cancel-reply-btn {
+            background: #3a3a52;
+            color: white;
+        }
+        
+        .comment-form {
+            padding: 15px;
+            background: #2d2d44;
+            border-top: 1px solid #3a3a52;
+        }
+        
+        .name-input-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        
+        .name-input {
+            width: 100%;
+            background: #1e1e2e;
+            border: 1px solid #3a3a52;
+            border-radius: 20px;
+            padding: 10px 15px;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .name-input:focus {
+            outline: none;
+            border-color: #6a11cb;
+        }
+        
+        .name-hint {
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: #6a11cb;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .name-input:focus + .name-hint {
+            opacity: 1;
+        }
+        
+        .avatar-drop-area {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            border: 2px dashed #6a11cb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px auto;
+            cursor: pointer;
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+        
+        .avatar-drop-area:hover {
+            border-color: #8a2be2;
+            background: #3a3a52;
+        }
+        
+        .avatar-drop-area.has-image {
+            border-style: solid;
+        }
+        
+        .avatar-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        
+        .avatar-placeholder {
+            font-size: 24px;
+            color: #6a11cb;
+        }
+        
+        .avatar-instruction {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #a0a0c0;
+            margin-bottom: 15px;
+        }
+        
+        .comment-input-container {
+            display: flex;
+            align-items: flex-end;
+        }
+        
+        .comment-input {
+            flex: 1;
+            background: #1e1e2e;
+            border: 1px solid #3a3a52;
+            border-radius: 20px;
+            padding: 10px 15px;
+            color: white;
+            font-size: 0.9rem;
+            resize: none;
+            height: 40px;
+            max-height: 120px;
+        }
+        
+        .comment-input:focus {
+            outline: none;
+            border-color: #6a11cb;
+        }
+        
+        .send-btn {
+            background: #6a11cb;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            margin-left: 10px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        
+        .send-btn:hover {
+            background: #5a0db5;
+        }
+        
+        .send-btn:disabled {
+            background: #3a3a52;
+            cursor: not-allowed;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 2px solid #6a11cb;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .change-profile-btn {
+            background: none;
+            border: none;
+            color: #6a11cb;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .replies {
+            margin-top: 10px;
+            margin-left: 30px;
+            border-left: 2px solid forestgreen;
+            padding-left: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .floating-comment-btn {
+                left: 10px;
+                width: 60px;
+                height: 60px;
+                font-size: 25px;
+            }
+            
+            .comments-modal {
+                width: 95%;
+                height: 85vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mi Sitio Web</h1>
+            <p class="subtitle">Bienvenido a mi sitio web. no olvides dejarnos tus comentarios!</p>
+        </header>
+        
+        <main>
+            <p>Este es el contenido principal de tu sitio web. Los usuarios pueden interactuar con el buzon de comentarios flotante en el lado izquierdo.</p>
+            <p>Haz clic en el boton 💬 para abrir los comentarios. Â¡Recuerda que necesitas escribir tu nombre para poder comentar!</p>
+        </main>
+    </div>
+    
+    <!-- BotÃ³n flotante de comentarios -->
+    <div class="floating-comment-btn" id="commentBtn">
+        💬
+    </div>
+    
+    <!-- Modal de comentarios -->
+    <div class="comments-modal" id="commentsModal">
+        <div class="comments-header">
+            <div class="comments-title">Comentarios</div>
+            <button class="close-btn" id="closeComments">💬</button>
+        </div>
+        
+        <div class="user-profile" id="userProfile">
+            <div class="avatar-drop-area" id="avatarDropArea">
+                <img class="avatar-preview" id="avatarPreview" alt="Avatar">
+                <div class="avatar-placeholder"> 💬 </div>
+            </div>
+            <div class="user-info">
+                <div class="user-name" id="displayUserName">Escribe tu nombre</div>
+                <button class="change-profile-btn" id="changeProfile">Cambiar perfil</button>
+            </div>
+        </div>
+        
+        <div class="avatar-instruction">Arrastra una imagen aquÃ­ o haz clic para seleccionar</div>
+        
+        <div class="comments-list" id="commentsList">
+            <!-- Los comentarios se cargarÃ¡n aquÃ­ -->
+        </div>
+        
+        <div class="comment-form">
+            <div class="name-input-container">
+                <input type="text" class="name-input" id="userNameInput" placeholder="Tu nombre (requerido para comentar)">
+                <div class="name-hint">Escribe tu nombre para poder comentar</div>
+            </div>
+            <div class="comment-input-container">
+                <textarea class="comment-input" id="commentInput" placeholder="Escribe tu comentario..."></textarea>
+                <button class="send-btn" id="sendComment" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Input oculto para seleccionar archivo -->
+    <input type="file" id="avatarFileInput" accept="image/*" style="display: none;">
+
+    <script>
+        // Elementos del DOM
+        const commentBtn = document.getElementById('commentBtn');
+        const commentsModal = document.getElementById('commentsModal');
+        const closeCommentsBtn = document.getElementById('closeComments');
+        const commentsList = document.getElementById('commentsList');
+        const userNameInput = document.getElementById('userNameInput');
+        const displayUserName = document.getElementById('displayUserName');
+        const commentInput = document.getElementById('commentInput');
+        const sendCommentBtn = document.getElementById('sendComment');
+        const avatarDropArea = document.getElementById('avatarDropArea');
+        const avatarPreview = document.getElementById('avatarPreview');
+        const avatarFileInput = document.getElementById('avatarFileInput');
+        const userProfile = document.getElementById('userProfile');
+        const changeProfileBtn = document.getElementById('changeProfile');
+
+        // Variables de estado
+        let currentUser = {
+            name: localStorage.getItem('userName') || '',
+            avatar: localStorage.getItem('userAvatar') || '',
+            id: localStorage.getItem('userId') || generateUserId()
+        };
+        let comments = JSON.parse(localStorage.getItem('comments')) || [];
+        let nextCommentId = parseInt(localStorage.getItem('nextCommentId')) || 1;
+        let nextReplyId = parseInt(localStorage.getItem('nextReplyId')) || 1;
+        let replyingTo = null;
+
+        // Generar ID Ãºnico para el usuario
+        function generateUserId() {
+            const id = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('userId', id);
+            return id;
+        }
+
+        // FunciÃ³n para renderizar comentarios
+        function renderComments() {
+            commentsList.innerHTML = '';
+            
+            if (comments.length === 0) {
+                commentsList.innerHTML = '<div style="text-align: center; padding: 20px; color: #a0a0c0;">No hay comentarios aÃºn. Â¡SÃ© el primero en comentar!</div>';
+                return;
+            }
+            
+            comments.forEach(comment => {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment';
+                commentElement.dataset.id = comment.id;
+                
+                commentElement.innerHTML = `
+                    <div class="comment-header">
+                        <div class="comment-avatar ${comment.avatar ? 'has-image' : ''}">
+                            ${comment.avatar ? `<img src="${comment.avatar}" alt="Avatar">` : comment.author.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="comment-author">${comment.author}</div>
+                        <div class="comment-date">${comment.date}</div>
+                    </div>
+                    <div class="comment-content">${comment.content}</div>
+                    <div class="comment-actions">
+                        <button class="comment-action-btn reply-btn" data-id="${comment.id}">Responder</button>
+                        <button class="comment-action-btn copy-btn" data-content="${comment.content}">Copiar</button>
+                    </div>
+                    <div class="reply-form" id="reply-form-${comment.id}">
+                        <textarea class="reply-input" placeholder="Escribe tu respuesta..."></textarea>
+                        <div class="reply-buttons">
+                            <button class="cancel-reply-btn">Cancelar</button>
+                            <button class="reply-btn">Responder</button>
+                        </div>
+                    </div>
+                    ${comment.replies && comment.replies.length > 0 ? `
+                        <div class="replies">
+                            ${comment.replies.map(reply => `
+                                <div class="comment">
+                                    <div class="comment-header">
+                                        <div class="comment-avatar ${reply.avatar ? 'has-image' : ''}">
+                                            ${reply.avatar ? `<img src="${reply.avatar}" alt="Avatar">` : reply.author.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div class="comment-author">${reply.author}</div>
+                                        <div class="comment-date">${reply.date}</div>
+                                    </div>
+                                    <div class="comment-content">${reply.content}</div>
+                                    <div class="comment-actions">
+                                        <button class="comment-action-btn copy-btn" data-content="${reply.content}">Copiar</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                `;
+                
+                commentsList.appendChild(commentElement);
+            });
+            
+            // AÃ±adir event listeners para los botones de responder y copiar
+            document.querySelectorAll('.reply-btn').forEach(btn => {
+                if (btn.dataset.id) {
+                    btn.addEventListener('click', () => toggleReplyForm(btn.dataset.id));
+                }
+            });
+            
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', () => copyComment(btn.dataset.content));
+            });
+            
+            document.querySelectorAll('.cancel-reply-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const form = btn.closest('.reply-form');
+                    form.style.display = 'none';
+                    form.querySelector('.reply-input').value = '';
+                    replyingTo = null;
+                });
+            });
+            
+            document.querySelectorAll('.reply-btn:not(.comment-action-btn)').forEach(btn => {
+                btn.addEventListener('click', () => addReply(btn.closest('.reply-form')));
+            });
+        }
+
+        // FunciÃ³n para alternar el formulario de respuesta
+        function toggleReplyForm(commentId) {
+            // Cerrar todos los formularios de respuesta
+            document.querySelectorAll('.reply-form').forEach(form => {
+                form.style.display = 'none';
+                form.querySelector('.reply-input').value = '';
+            });
+            
+            // Abrir el formulario seleccionado
+            const replyForm = document.getElementById(`reply-form-${commentId}`);
+            replyForm.style.display = 'block';
+            replyingTo = commentId;
+        }
+
+        // FunciÃ³n para aÃ±adir una respuesta
+        function addReply(form) {
+            const replyInput = form.querySelector('.reply-input');
+            const content = replyInput.value.trim();
+            
+            if (content === '') {
+                alert('Por favor, escribe una respuesta.');
+                return;
+            }
+            
+            if (!currentUser.name) {
+                alert('Por favor, ingresa tu nombre antes de responder.');
+                userNameInput.focus();
+                return;
+            }
+            
+            const date = new Date();
+            const dateString = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+            
+            const newReply = {
+                id: nextReplyId++,
+                author: currentUser.name,
+                avatar: currentUser.avatar,
+                date: dateString,
+                content: content,
+                userId: currentUser.id
+            };
+            
+            // Encontrar el comentario al que se estÃ¡ respondiendo
+            const commentIndex = comments.findIndex(c => c.id == replyingTo);
+            if (commentIndex !== -1) {
+                if (!comments[commentIndex].replies) {
+                    comments[commentIndex].replies = [];
+                }
+                comments[commentIndex].replies.push(newReply);
+                saveComments();
+                renderComments();
+                
+                // Cerrar el formulario de respuesta
+                form.style.display = 'none';
+                replyInput.value = '';
+                replyingTo = null;
+            }
+        }
+
+        // FunciÃ³n para copiar un comentario
+        function copyComment(content) {
+            navigator.clipboard.writeText(content)
+                .then(() => {
+                    // Mostrar mensaje de Ã©xito
+                    const originalText = event.target.textContent;
+                    event.target.textContent = 'Â¡Copiado!';
+                    setTimeout(() => {
+                        event.target.textContent = originalText;
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Error al copiar: ', err);
+                });
+        }
+
+        // FunciÃ³n para aÃ±adir un nuevo comentario
+        function addComment() {
+            const content = commentInput.value.trim();
+            
+            if (content === '') {
+                alert('Por favor, escribe un comentario.');
+                return;
+            }
+            
+            if (!currentUser.name) {
+                alert('Por favor, ingresa tu nombre antes de comentar.');
+                userNameInput.focus();
+                return;
+            }
+            
+            const date = new Date();
+            const dateString = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+            
+            const newComment = {
+                id: nextCommentId++,
+                author: currentUser.name,
+                avatar: currentUser.avatar,
+                date: dateString,
+                content: content,
+                replies: [],
+                userId: currentUser.id
+            };
+            
+            comments.unshift(newComment);
+            saveComments();
+            renderComments();
+            commentInput.value = '';
+            
+            // Auto-ajustar la altura del textarea
+            commentInput.style.height = '40px';
+        }
+
+        // FunciÃ³n para guardar comentarios en localStorage
+        function saveComments() {
+            localStorage.setItem('comments', JSON.stringify(comments));
+            localStorage.setItem('nextCommentId', nextCommentId);
+            localStorage.setItem('nextReplyId', nextReplyId);
+        }
+
+        // FunciÃ³n para actualizar el perfil del usuario
+        function updateUserProfile() {
+            const name = userNameInput.value.trim();
+            
+            if (name) {
+                currentUser.name = name;
+                localStorage.setItem('userName', name);
+                displayUserName.textContent = name;
+                
+                // Actualizar comentarios existentes con el nuevo nombre/avatar
+                updateUserComments();
+                
+                // Habilitar el botÃ³n de enviar
+                sendCommentBtn.disabled = false;
+            } else {
+                displayUserName.textContent = 'Escribe tu nombre';
+                sendCommentBtn.disabled = true;
+            }
+        }
+
+        // FunciÃ³n para actualizar comentarios del usuario
+        function updateUserComments() {
+            let updated = false;
+            
+            comments.forEach(comment => {
+                if (comment.userId === currentUser.id) {
+                    comment.author = currentUser.name;
+                    comment.avatar = currentUser.avatar;
+                    updated = true;
+                }
+                
+                if (comment.replies) {
+                    comment.replies.forEach(reply => {
+                        if (reply.userId === currentUser.id) {
+                            reply.author = currentUser.name;
+                            reply.avatar = currentUser.avatar;
+                            updated = true;
+                        }
+                    });
+                }
+            });
+            
+            if (updated) {
+                saveComments();
+                renderComments();
+            }
+        }
+
+        // FunciÃ³n para manejar la selecciÃ³n de avatar
+        function handleAvatarSelect(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    currentUser.avatar = e.target.result;
+                    localStorage.setItem('userAvatar', e.target.result);
+                    
+                    // Actualizar la vista previa
+                    avatarPreview.src = e.target.result;
+                    avatarPreview.style.display = 'block';
+                    avatarDropArea.querySelector('.avatar-placeholder').style.display = 'none';
+                    avatarDropArea.classList.add('has-image');
+                    
+                    // Actualizar comentarios existentes
+                    updateUserComments();
+                };
+                
+                reader.readAsDataURL(file);
+            } else {
+                alert('Por favor, selecciona un archivo de imagen vÃ¡lido.');
+            }
+        }
+
+        // MEJORA: Funcionalidad de arrastre para ambos elementos
+        function makeDraggable(element) {
+            let isDragging = false;
+            let startX, startY, initialX, initialY;
+            
+            element.addEventListener('mousedown', startDrag);
+            
+            function startDrag(e) {
+                // No arrastrar si se hace clic en inputs, botones o textareas
+                if (e.target.tagName === 'INPUT' || 
+                    e.target.tagName === 'BUTTON' || 
+                    e.target.tagName === 'TEXTAREA' ||
+                    e.target.closest('.comment-actions')) {
+                    return;
+                }
+                
+                isDragging = true;
+                
+                // Obtener posiciÃ³n inicial
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                if (element === commentBtn) {
+                    initialX = element.offsetLeft;
+                    initialY = element.offsetTop;
+                } else {
+                    const rect = element.getBoundingClientRect();
+                    initialX = rect.left;
+                    initialY = rect.top;
+                }
+                
+                // Cambiar cursor
+                element.style.cursor = 'grabbing';
+                
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+                
+                e.preventDefault();
+            }
+            
+            function drag(e) {
+                if (!isDragging) return;
+                
+                // Calcular nueva posiciÃ³n
+                const deltaX = e.clientX - startX;
+                const deltaY = e.clientY - startY;
+                
+                // Aplicar nueva posiciÃ³n
+                element.style.left = (initialX + deltaX) + 'px';
+                element.style.top = (initialY + deltaY) + 'px';
+                element.style.position = 'fixed';
+                element.style.transform = 'none';
+            }
+            
+            function stopDrag() {
+                isDragging = false;
+                element.style.cursor = element === commentBtn ? 'grab' : 'grab';
+                
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', stopDrag);
+            }
+        }
+
+        // Auto-ajustar la altura del textarea del comentario
+        commentInput.addEventListener('input', function() {
+            this.style.height = '40px';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Enviar comentario con Enter (Ctrl+Enter o Cmd+Enter)
+        commentInput.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                addComment();
+            }
+        });
+
+        // Event Listeners
+        commentBtn.addEventListener('click', () => {
+            commentsModal.style.display = 'flex';
+        });
+        
+        closeCommentsBtn.addEventListener('click', () => {
+            commentsModal.style.display = 'none';
+        });
+        
+        sendCommentBtn.addEventListener('click', addComment);
+        
+        userNameInput.addEventListener('input', updateUserProfile);
+        
+        // Arrastrar y soltar para el avatar
+        avatarDropArea.addEventListener('click', () => {
+            avatarFileInput.click();
+        });
+        
+        avatarDropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            avatarDropArea.style.borderColor = '#8a2be2';
+            avatarDropArea.style.background = '#3a3a52';
+        });
+        
+        avatarDropArea.addEventListener('dragleave', () => {
+            avatarDropArea.style.borderColor = '#6a11cb';
+            avatarDropArea.style.background = '#2d2d44';
+        });
+        
+        avatarDropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            avatarDropArea.style.borderColor = '#6a11cb';
+            avatarDropArea.style.background = '#2d2d44';
+            
+            if (e.dataTransfer.files.length) {
+                handleAvatarSelect(e.dataTransfer.files[0]);
+            }
+        });
+        
+        avatarFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleAvatarSelect(e.target.files[0]);
+            }
+        });
+        
+        changeProfileBtn.addEventListener('click', () => {
+            avatarFileInput.click();
+        });
+
+        // Inicializar la aplicaciÃ³n
+        function init() {
+            // Cargar datos del usuario
+            if (currentUser.name) {
+                userNameInput.value = currentUser.name;
+                displayUserName.textContent = currentUser.name;
+                sendCommentBtn.disabled = false;
+            }
+            
+            if (currentUser.avatar) {
+                avatarPreview.src = currentUser.avatar;
+                avatarPreview.style.display = 'block';
+                avatarDropArea.querySelector('.avatar-placeholder').style.display = 'none';
+                avatarDropArea.classList.add('has-image');
+            }
+            
+            renderComments();
+            
+            // MEJORA: Hacer ambos elementos arrastrables
+            makeDraggable(commentBtn);
+            makeDraggable(commentsModal);
+        }
+
+        // Ejecutar la inicializaciÃ³n cuando se carga la pÃ¡gina
+        window.onload = init;
+    </script>
+</body>
+</html>
+message.txt
+message.txt (35 KB)
+35 KB
