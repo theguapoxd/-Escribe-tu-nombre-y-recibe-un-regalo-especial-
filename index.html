@@ -697,7 +697,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buzon de Comentarios</title>
+    <title>Buzón de Comentarios</title>
     <style>
         * {
             margin: 0;
@@ -708,35 +708,8 @@
         
         body {
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            color: #fff;
             min-height: 100vh;
-            padding: 20px;
             position: relative;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: rgba(132, 215, 254, 0.928);
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
         }
         
         .floating-comment-btn {
@@ -823,6 +796,7 @@
         .comments-title {
             font-size: 1.3rem;
             font-weight: 600;
+            color: white;
         }
         
         .close-btn {
@@ -876,6 +850,7 @@
             border: 2px solid transparent;
             transition: border 0.3s;
             overflow: hidden;
+            color: white;
         }
         
         .comment-avatar.has-image {
@@ -891,6 +866,7 @@
         .comment-author {
             font-weight: 600;
             font-size: 0.95rem;
+            color: white;
         }
         
         .comment-date {
@@ -903,6 +879,7 @@
             margin-left: 46px;
             font-size: 0.9rem;
             line-height: 1.4;
+            color: white;
         }
         
         .comment-actions {
@@ -1133,6 +1110,7 @@
         .user-name {
             font-weight: 600;
             margin-bottom: 5px;
+            color: white;
         }
         
         .change-profile-btn {
@@ -1167,19 +1145,7 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Mi Sitio Web</h1>
-            <p class="subtitle">Bienvenido a mi sitio web. no olvides dejarnos tus comentarios!</p>
-        </header>
-        
-        <main>
-            <p>Este es el contenido principal de tu sitio web. Los usuarios pueden interactuar con el buzon de comentarios flotante en el lado izquierdo.</p>
-            <p>Haz clic en el boton 💬 para abrir los comentarios. Â¡Recuerda que necesitas escribir tu nombre para poder comentar!</p>
-        </main>
-    </div>
-    
-    <!-- BotÃ³n flotante de comentarios -->
+    <!-- Botón flotante de comentarios -->
     <div class="floating-comment-btn" id="commentBtn">
         💬
     </div>
@@ -1202,10 +1168,10 @@
             </div>
         </div>
         
-        <div class="avatar-instruction">Arrastra una imagen aquÃ­ o haz clic para seleccionar</div>
+        <div class="avatar-instruction">Arrastra una imagen aquí o haz clic para seleccionar</div>
         
         <div class="comments-list" id="commentsList">
-            <!-- Los comentarios se cargarÃ¡n aquÃ­ -->
+            <!-- Los comentarios se cargarán aquí -->
         </div>
         
         <div class="comment-form">
@@ -1255,19 +1221,19 @@
         let nextReplyId = parseInt(localStorage.getItem('nextReplyId')) || 1;
         let replyingTo = null;
 
-        // Generar ID Ãºnico para el usuario
+        // Generar ID único para el usuario
         function generateUserId() {
             const id = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             localStorage.setItem('userId', id);
             return id;
         }
 
-        // FunciÃ³n para renderizar comentarios
+        // Función para renderizar comentarios
         function renderComments() {
             commentsList.innerHTML = '';
             
             if (comments.length === 0) {
-                commentsList.innerHTML = '<div style="text-align: center; padding: 20px; color: #a0a0c0;">No hay comentarios aÃºn. Â¡SÃ© el primero en comentar!</div>';
+                commentsList.innerHTML = '<div style="text-align: center; padding: 20px; color: #a0a0c0;">No hay comentarios aún. ¡Sé el primero en comentar!</div>';
                 return;
             }
             
@@ -1320,7 +1286,7 @@
                 commentsList.appendChild(commentElement);
             });
             
-            // AÃ±adir event listeners para los botones de responder y copiar
+            // Añadir event listeners para los botones de responder y copiar
             document.querySelectorAll('.reply-btn').forEach(btn => {
                 if (btn.dataset.id) {
                     btn.addEventListener('click', () => toggleReplyForm(btn.dataset.id));
@@ -1345,7 +1311,7 @@
             });
         }
 
-        // FunciÃ³n para alternar el formulario de respuesta
+        // Función para alternar el formulario de respuesta
         function toggleReplyForm(commentId) {
             // Cerrar todos los formularios de respuesta
             document.querySelectorAll('.reply-form').forEach(form => {
@@ -1359,7 +1325,7 @@
             replyingTo = commentId;
         }
 
-        // FunciÃ³n para aÃ±adir una respuesta
+        // Función para añadir una respuesta
         function addReply(form) {
             const replyInput = form.querySelector('.reply-input');
             const content = replyInput.value.trim();
@@ -1387,7 +1353,7 @@
                 userId: currentUser.id
             };
             
-            // Encontrar el comentario al que se estÃ¡ respondiendo
+            // Encontrar el comentario al que se está respondiendo
             const commentIndex = comments.findIndex(c => c.id == replyingTo);
             if (commentIndex !== -1) {
                 if (!comments[commentIndex].replies) {
@@ -1404,13 +1370,13 @@
             }
         }
 
-        // FunciÃ³n para copiar un comentario
+        // Función para copiar un comentario
         function copyComment(content) {
             navigator.clipboard.writeText(content)
                 .then(() => {
-                    // Mostrar mensaje de Ã©xito
+                    // Mostrar mensaje de éxito
                     const originalText = event.target.textContent;
-                    event.target.textContent = 'Â¡Copiado!';
+                    event.target.textContent = '¡Copiado!';
                     setTimeout(() => {
                         event.target.textContent = originalText;
                     }, 2000);
@@ -1420,7 +1386,7 @@
                 });
         }
 
-        // FunciÃ³n para aÃ±adir un nuevo comentario
+        // Función para añadir un nuevo comentario
         function addComment() {
             const content = commentInput.value.trim();
             
@@ -1457,14 +1423,14 @@
             commentInput.style.height = '40px';
         }
 
-        // FunciÃ³n para guardar comentarios en localStorage
+        // Función para guardar comentarios en localStorage
         function saveComments() {
             localStorage.setItem('comments', JSON.stringify(comments));
             localStorage.setItem('nextCommentId', nextCommentId);
             localStorage.setItem('nextReplyId', nextReplyId);
         }
 
-        // FunciÃ³n para actualizar el perfil del usuario
+        // Función para actualizar el perfil del usuario
         function updateUserProfile() {
             const name = userNameInput.value.trim();
             
@@ -1476,7 +1442,7 @@
                 // Actualizar comentarios existentes con el nuevo nombre/avatar
                 updateUserComments();
                 
-                // Habilitar el botÃ³n de enviar
+                // Habilitar el botón de enviar
                 sendCommentBtn.disabled = false;
             } else {
                 displayUserName.textContent = 'Escribe tu nombre';
@@ -1484,7 +1450,7 @@
             }
         }
 
-        // FunciÃ³n para actualizar comentarios del usuario
+        // Función para actualizar comentarios del usuario
         function updateUserComments() {
             let updated = false;
             
@@ -1512,7 +1478,7 @@
             }
         }
 
-        // FunciÃ³n para manejar la selecciÃ³n de avatar
+        // Función para manejar la selección de avatar
         function handleAvatarSelect(file) {
             if (file && file.type.startsWith('image/')) {
                 const reader = new FileReader();
@@ -1533,7 +1499,7 @@
                 
                 reader.readAsDataURL(file);
             } else {
-                alert('Por favor, selecciona un archivo de imagen vÃ¡lido.');
+                alert('Por favor, selecciona un archivo de imagen válido.');
             }
         }
 
@@ -1555,7 +1521,7 @@
                 
                 isDragging = true;
                 
-                // Obtener posiciÃ³n inicial
+                // Obtener posición inicial
                 startX = e.clientX;
                 startY = e.clientY;
                 
@@ -1580,11 +1546,11 @@
             function drag(e) {
                 if (!isDragging) return;
                 
-                // Calcular nueva posiciÃ³n
+                // Calcular nueva posición
                 const deltaX = e.clientX - startX;
                 const deltaY = e.clientY - startY;
                 
-                // Aplicar nueva posiciÃ³n
+                // Aplicar nueva posición
                 element.style.left = (initialX + deltaX) + 'px';
                 element.style.top = (initialY + deltaY) + 'px';
                 element.style.position = 'fixed';
@@ -1662,7 +1628,7 @@
             avatarFileInput.click();
         });
 
-        // Inicializar la aplicaciÃ³n
+        // Inicializar la aplicación
         function init() {
             // Cargar datos del usuario
             if (currentUser.name) {
@@ -1685,11 +1651,8 @@
             makeDraggable(commentsModal);
         }
 
-        // Ejecutar la inicializaciÃ³n cuando se carga la pÃ¡gina
+        // Ejecutar la inicialización cuando se carga la página
         window.onload = init;
     </script>
 </body>
 </html>
-message.txt
-message.txt (35 KB)
-35 KB
